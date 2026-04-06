@@ -1,0 +1,4 @@
+BACKUP: labels-log.tsv
+Copied on 2026-04-06 — created by automated patch
+
+(See original file in logs/labels-log.tsv)

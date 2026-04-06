@@ -1,0 +1,3395 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <title>StationOne</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- PWA bits -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#020617" />
+  <!-- Use your existing sticker or logo here -->
+  <link rel="icon" href="/StationOne.png" />
+  <style>
+      :root{
+        --bg: #060b14;
+        --bg-2: #0b1220;
+        --panel: rgba(14, 20, 34, 0.78);
+        --panel-strong: rgba(14, 20, 34, 0.92);
+        --panel-soft: rgba(255,255,255,0.04);
+        --line: rgba(255,255,255,0.08);
+        --line-strong: rgba(255,255,255,0.14);
+        --text: #eef2f7;
+        --text-soft: #c6d0dd;
+        --text-muted: #8c98aa;
+        --accent: #7dd3fc;
+        --accent-strong: #38bdf8;
+        --danger: #f87171;
+        --success: #34d399;
+
+        --nav-width: 250px;
+        --nav-collapsed-width: 78px;
+
+        --radius-xl: 24px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+        --radius-sm: 12px;
+
+        --shadow-card: 0 20px 45px rgba(0,0,0,0.24);
+        --shadow-soft: 0 12px 30px rgba(0,0,0,0.16);
+      }
+
+      *{
+        box-sizing:border-box;
+      }
+
+      html, body{
+        margin:0;
+        padding:0;
+        width:100%;
+        min-height:100%;
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+        color:var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(56,189,248,0.10), transparent 22%),
+          radial-gradient(circle at bottom right, rgba(125,211,252,0.08), transparent 20%),
+          linear-gradient(180deg, #04070d 0%, #08101c 55%, #04070d 100%);
+        overflow-x:hidden;
+      }
+
+      body{
+        display:block;
+      }
+
+      .app-shell{
+        display:grid;
+        grid-template-columns: var(--nav-width) minmax(0, 1fr);
+        min-height:100vh;
+        transition:grid-template-columns 180ms ease;
+      }
+
+      body.nav-collapsed .app-shell{
+        grid-template-columns: var(--nav-collapsed-width) minmax(0, 1fr);
+      }
+
+      .side-nav{
+        position:sticky;
+        top:0;
+        height:100vh;
+        display:flex;
+        flex-direction:column;
+        gap:18px;
+        padding:18px 12px;
+        background:linear-gradient(180deg, rgba(10,15,25,0.96) 0%, rgba(7,10,18,0.98) 100%);
+        border-right:1px solid var(--line);
+        backdrop-filter: blur(18px);
+        overflow:hidden;
+        z-index:30;
+      }
+
+      .brand-block{
+        display:flex;
+        align-items:center;
+        gap:12px;
+        padding:10px;
+        border-radius:20px;
+        background:rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.04);
+      }
+
+      .brand-logo{
+        width:42px;
+        height:42px;
+        border-radius:999px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:700;
+        letter-spacing:0.08em;
+        background:
+          radial-gradient(circle at 30% 25%, rgba(125,211,252,0.95), rgba(56,189,248,0.28) 38%, rgba(2,6,23,1) 80%);
+        box-shadow: 0 12px 28px rgba(56,189,248,0.18);
+      }
+
+      .brand-text{
+        display:flex;
+        flex-direction:column;
+        gap:3px;
+        min-width:0;
+      }
+
+      .brand-title{
+        font-size:0.95rem;
+        font-weight:700;
+        letter-spacing:0.03em;
+      }
+
+      .brand-sub{
+        font-size:0.72rem;
+        color:var(--text-muted);
+        white-space:nowrap;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .nav-group{
+        display:flex;
+        flex-direction:column;
+        gap:8px;
+      }
+
+      .nav-label{
+        padding:0 10px;
+        font-size:0.68rem;
+        letter-spacing:0.14em;
+        text-transform:uppercase;
+        color:var(--text-muted);
+      }
+
+      .nav-btn{
+        appearance:none;
+        border:1px solid transparent;
+        background:transparent;
+        color:var(--text-soft);
+        min-height:44px;
+        border-radius:15px;
+        padding:10px 12px;
+        display:flex;
+        align-items:center;
+        gap:10px;
+        cursor:pointer;
+        transition:background 150ms ease, border-color 150ms ease, color 150ms ease, transform 80ms ease;
+      }
+
+      .nav-btn:hover{
+        background:rgba(255,255,255,0.04);
+        border-color:rgba(255,255,255,0.05);
+        color:var(--text);
+      }
+
+      .nav-btn.is-active{
+        background:linear-gradient(180deg, rgba(125,211,252,0.16) 0%, rgba(56,189,248,0.08) 100%);
+        border-color:rgba(125,211,252,0.22);
+        color:#f4faff;
+      }
+
+      .nav-btn-dot{
+        width:8px;
+        height:8px;
+        border-radius:999px;
+        background:rgba(148,163,184,0.65);
+        flex:0 0 auto;
+      }
+
+      .nav-btn.is-active .nav-btn-dot{
+        background:var(--accent);
+        box-shadow:0 0 0 6px rgba(125,211,252,0.10);
+      }
+
+      .side-nav-footer{
+        margin-top:auto;
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+        padding:6px 6px 2px;
+        font-size:0.7rem;
+        color:var(--text-muted);
+      }
+
+      .nav-collapse-btn{
+        appearance:none;
+        border:1px solid var(--line-strong);
+        background:rgba(255,255,255,0.03);
+        color:var(--text-soft);
+        min-height:42px;
+        width:100%;
+        border-radius:15px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        transition:background 150ms ease, border-color 150ms ease;
+      }
+
+      .nav-collapse-btn:hover{
+        background:rgba(255,255,255,0.05);
+        border-color:rgba(125,211,252,0.22);
+      }
+
+      .nav-collapse-icon{
+        width:24px;
+        height:24px;
+        border-radius:999px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        background:rgba(125,211,252,0.10);
+        border:1px solid rgba(125,211,252,0.16);
+      }
+
+      .nav-collapse-text{
+        font-size:0.76rem;
+        font-weight:600;
+      }
+
+      body.nav-collapsed .brand-text,
+      body.nav-collapsed .nav-label,
+      body.nav-collapsed .nav-btn-text,
+      body.nav-collapsed .nav-collapse-text{
+        display:none;
+      }
+
+      body.nav-collapsed .brand-block,
+      body.nav-collapsed .nav-btn{
+        justify-content:center;
+      }
+
+      body.nav-collapsed .side-nav{
+        padding:18px 8px;
+      }
+
+      .main-shell{
+        display:flex;
+        flex-direction:column;
+        min-width:0;
+        padding:20px;
+        gap:16px;
+      }
+
+      .top-bar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:14px;
+        padding:2px 2px 4px;
+      }
+
+      .top-left{
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+      }
+
+      .top-title{
+        font-size:1.22rem;
+        font-weight:700;
+        letter-spacing:-0.01em;
+      }
+
+      .top-sub{
+        font-size:0.82rem;
+        color:var(--text-muted);
+      }
+
+      .top-right{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+      }
+
+      .nav-toggle{
+        display:none;
+        appearance:none;
+        border:1px solid var(--line-strong);
+        background:rgba(255,255,255,0.04);
+        color:var(--text);
+        width:42px;
+        height:42px;
+        border-radius:14px;
+        align-items:center;
+        justify-content:center;
+        cursor:pointer;
+      }
+
+      .nav-overlay{
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.5);
+        opacity:0;
+        pointer-events:none;
+        transition:opacity 160ms ease;
+        z-index:25;
+      }
+
+      .nav-overlay.is-open{
+        opacity:1;
+        pointer-events:auto;
+      }
+
+      .pill{
+        min-height:38px;
+        padding:0 12px;
+        border-radius:999px;
+        display:inline-flex;
+        align-items:center;
+        gap:8px;
+        border:1px solid var(--line);
+        background:rgba(255,255,255,0.04);
+        color:var(--text-soft);
+        font-size:0.75rem;
+        backdrop-filter:blur(10px);
+      }
+
+      .pill-dot--green,
+      .pill-dot--blue{
+        width:8px;
+        height:8px;
+        border-radius:999px;
+      }
+
+      .pill-dot--green{
+        background:var(--success);
+        box-shadow:0 0 0 6px rgba(52,211,153,0.12);
+      }
+
+      .pill-dot--blue{
+        background:var(--accent);
+        box-shadow:0 0 0 6px rgba(125,211,252,0.12);
+      }
+
+      .views-shell{
+        flex:1;
+        min-height:0;
+        overflow-y:auto;
+      }
+
+      .views-inner{
+        display:flex;
+        flex-direction:column;
+        gap:16px;
+        padding-bottom:16px;
+      }
+
+      .view{
+        display:none;
+      }
+
+      .view.is-active{
+        display:block;
+      }
+
+      .main-grid{
+        display:grid;
+        grid-template-columns:minmax(0, 2fr) minmax(320px, 1fr);
+        gap:16px;
+      }
+
+      .view--labels .main-grid{
+        grid-template-columns:1fr;
+      }
+
+      .card{
+        display:flex;
+        flex-direction:column;
+        gap:14px;
+        min-width:0;
+        padding:20px;
+        border-radius:24px;
+        background:linear-gradient(180deg, rgba(16,22,37,0.88) 0%, rgba(12,17,29,0.94) 100%);
+        border:1px solid var(--line);
+        box-shadow:var(--shadow-card);
+        backdrop-filter:blur(14px);
+      }
+
+      .card-header{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:12px;
+      }
+
+      .card-title{
+        font-size:1.02rem;
+        font-weight:700;
+        letter-spacing:-0.01em;
+      }
+
+      .card-subtitle{
+        margin-top:3px;
+        font-size:0.82rem;
+        color:var(--text-muted);
+        line-height:1.45;
+      }
+
+      .card-section-label{
+        font-size:0.7rem;
+        letter-spacing:0.12em;
+        text-transform:uppercase;
+        color:var(--text-muted);
+      }
+
+      .card-footer-note,
+      .muted{
+        color:var(--text-muted);
+        font-size:0.78rem;
+        line-height:1.45;
+      }
+
+      .field-label{
+        margin-bottom:6px;
+        font-size:0.77rem;
+        color:var(--text-soft);
+      }
+
+      .field-row{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:12px;
+      }
+
+      .field-row-3{
+        display:grid;
+        grid-template-columns:1.2fr 0.9fr 0.9fr;
+        gap:12px;
+      }
+
+      .settings-grid,
+      .mgmt-grid,
+      .tasks-grid{
+        display:grid;
+        grid-template-columns:repeat(2, minmax(0, 1fr));
+        gap:14px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="datetime-local"],
+      select,
+      textarea{
+        width:100%;
+        min-height:44px;
+        padding:10px 12px;
+        border-radius:14px;
+        border:1px solid rgba(255,255,255,0.09);
+        background:rgba(255,255,255,0.03);
+        color:var(--text);
+        font-size:0.82rem;
+        transition:border-color 140ms ease, box-shadow 140ms ease, background 140ms ease;
+      }
+
+      textarea{
+        min-height:96px;
+        resize:vertical;
+      }
+
+      input::placeholder,
+      textarea::placeholder{
+        color:rgba(198,208,221,0.52);
+      }
+
+      /* Ensure selects render dark-friendly options */
+      select{
+        color-scheme: dark;
+      }
+
+      select option{
+        background:#0f172a;
+        color:#eef2f7;
+      }
+
+      select optgroup{
+        background:#0f172a;
+        color:#94a3b8;
+      }
+
+      /* Force native controls into neutral appearance for consistency */
+      select,
+      input[type="date"],
+      input[type="number"],
+      input[type="text"]{
+        -webkit-appearance: none;
+        appearance: none;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus{
+        outline:none;
+        border-color:rgba(125,211,252,0.35);
+        box-shadow:0 0 0 3px rgba(125,211,252,0.10);
+        background:rgba(255,255,255,0.05);
+      }
+
+      .btn-row{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        margin-top:4px;
+      }
+
+      .btn{
+        appearance:none;
+        border:0;
+        min-height:42px;
+        padding:0 16px;
+        border-radius:14px;
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        gap:8px;
+        cursor:pointer;
+        font-size:0.78rem;
+        font-weight:700;
+        letter-spacing:0.05em;
+        text-transform:uppercase;
+        background:linear-gradient(180deg, #67c8f8 0%, #38bdf8 100%);
+        color:#042131;
+        box-shadow:0 12px 28px rgba(56,189,248,0.20);
+        transition:transform 80ms ease, filter 140ms ease;
+      }
+
+      .btn:hover{
+        filter:brightness(1.03);
+      }
+
+      .btn:active{
+        transform:translateY(1px);
+      }
+
+      .btn.secondary{
+        background:rgba(255,255,255,0.05);
+        color:var(--text-soft);
+        border:1px solid rgba(255,255,255,0.08);
+        box-shadow:none;
+      }
+
+      .btn.danger{
+        background:linear-gradient(180deg, #f98b8b 0%, #f87171 100%);
+        color:#2f0c0c;
+        box-shadow:0 12px 28px rgba(248,113,113,0.18);
+      }
+
+      .chip-row{
+        display:flex;
+        flex-wrap:wrap;
+        gap:8px;
+      }
+
+      .chip{
+        padding:6px 10px;
+        border-radius:999px;
+        background:rgba(255,255,255,0.04);
+        color:var(--text-soft);
+        border:1px solid rgba(255,255,255,0.08);
+        font-size:0.74rem;
+      }
+
+      .chip.chip-active{
+        background:rgba(125,211,252,0.12);
+        border-color:rgba(125,211,252,0.22);
+        color:#effbff;
+      }
+
+      .mgmt-editor{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+      }
+
+      .overview-grid{
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:12px;
+      }
+
+      .overview-stat{
+        display:flex;
+        flex-direction:column;
+        gap:4px;
+        padding:16px;
+        border-radius:18px;
+        background:
+          radial-gradient(circle at top left, rgba(125,211,252,0.10), transparent 60%),
+          rgba(255,255,255,0.03);
+        border:1px solid rgba(255,255,255,0.07);
+      }
+
+      .overview-stat-label{
+        font-size:0.7rem;
+        letter-spacing:0.10em;
+        text-transform:uppercase;
+        color:var(--text-muted);
+      }
+
+      .overview-stat-value{
+        font-size:1.15rem;
+        font-weight:700;
+      }
+
+      .overview-list,
+      .history-table-wrap,
+      .planner-table-wrap{
+        border-radius:18px;
+        border:1px solid rgba(255,255,255,0.07);
+        background:rgba(255,255,255,0.03);
+        overflow:hidden;
+      }
+
+      .overview-list{
+        padding:8px 10px;
+      }
+
+      .overview-row{
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+        padding:6px 0;
+        font-size:0.8rem;
+      }
+
+      .history-wrap{
+        display:flex;
+        flex-direction:column;
+        gap:10px;
+      }
+
+      .history-filters{
+        display:flex;
+        flex-wrap:wrap;
+        gap:10px;
+        align-items:center;
+        font-size:0.78rem;
+      }
+
+      .history-table-inner{
+        overflow:auto;
+      }
+
+      table{
+        width:100%;
+        border-collapse:collapse;
+        font-size:0.8rem;
+      }
+
+      thead{
+        background:rgba(255,255,255,0.03);
+      }
+
+      th, td{
+        padding:10px 12px;
+        border-bottom:1px solid rgba(255,255,255,0.06);
+        text-align:left;
+      }
+
+      th{
+        font-size:0.68rem;
+        text-transform:uppercase;
+        letter-spacing:0.08em;
+        color:var(--text-muted);
+      }
+
+      tbody tr:hover td{
+        background:rgba(255,255,255,0.02);
+      }
+
+      .history-list{
+        display:none;
+        flex-direction:column;
+        gap:10px;
+      }
+
+      .history-item{
+        padding:10px 12px;
+        border-radius:16px;
+        border:1px solid rgba(255,255,255,0.07);
+        background:rgba(255,255,255,0.03);
+        font-size:0.78rem;
+      }
+
+      .history-item-top,
+      .history-item-meta{
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+      }
+
+      .history-item-main{
+        font-weight:600;
+      }
+
+      .preview-card-container{
+        display:flex;
+        justify-content:flex-start;
+        align-items:flex-start;
+        padding-top:4px;
+      }
+
+      .sticker-preview{
+        width:100%;
+        max-width:520px;
+        aspect-ratio:8 / 5;
+        background:#fff;
+        color:#111;
+        border-radius:18px;
+        border:1px solid rgba(0,0,0,0.15);
+        position:relative;
+        overflow:hidden;
+        box-shadow:0 16px 30px rgba(0,0,0,0.18);
+        font-family:system-ui, -apple-system, "Segoe UI", sans-serif;
+      }
+
+      .st-line{
+        position:absolute;
+        background:#111;
+      }
+
+      /* geometry based on sticker measurements (8cm wide, 5cm high) */
+      .st-h{ height:2px; left:0; width:75%; }
+      .st-h.h1{ top:20%; }
+      .st-h.h2{ top:40%; }
+      .st-h.h3{ top:60%; }
+      .st-h.h4{ top:80%; }
+
+      .st-v{ width:2px; top:20%; height:80%; }
+      .st-v.leftSplit{ left:31.25%; }
+      .st-v.solidMid{ left:87.5%; top:0; height:100%; }
+      .st-v.dotted{
+        left:75%;
+        top:0;
+        height:100%;
+        width:0;
+        border-left:3px dotted #111;
+        background:transparent;
+      }
+
+      .st-text{
+        position:absolute;
+        font-size:clamp(10px, 1.9vw, 14px);
+        line-height:1.1;
+        white-space:nowrap;
+      }
+
+      .st-label{
+        left:6%;
+        font-weight:600;
+      }
+
+      .st-label.prod{ top:8%; }
+      .st-label.prep{ top:28%; }
+      .st-label.begin{ top:48%; }
+      .st-label.useby{ top:68%; }
+      .st-label.sign{ top:88%; }
+
+      .st-value{
+        left:53.125%;
+        transform:translateX(-50%);
+        font-weight:700;
+        text-align:center;
+        max-width:40%;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .st-value.prod{ top:8%; font-size:clamp(12px, 2.2vw, 16px); }
+      .st-value.prep{ top:28%; }
+      .st-value.begin{ top:48%; }
+      .st-value.useby{ top:68%; }
+      .st-value.sign{ top:88%; font-weight:600; }
+
+      .st-rot{
+        position:absolute;
+        top:50%;
+        transform:translate(-50%, -50%) rotate(90deg);
+        transform-origin:center;
+        font-weight:800;
+        font-size:clamp(11px, 2.2vw, 16px);
+        white-space:nowrap;
+        max-width:220px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
+
+      .st-rot.prod{ left:81.25%; }
+      .st-rot.batch{ left:93.75%; }
+
+      .bottom-footer{
+        display:flex;
+        justify-content:space-between;
+        gap:6px;
+        padding-top:4px;
+        color:var(--text-muted);
+        font-size:0.72rem;
+      }
+
+      .toast{
+        position:fixed;
+        left:50%;
+        bottom:18px;
+        transform:translateX(-50%) translateY(120%);
+        background:rgba(12,17,29,0.96);
+        border-radius:999px;
+        border:1px solid rgba(255,255,255,0.10);
+        padding:8px 14px;
+        font-size:0.8rem;
+        display:flex;
+        align-items:center;
+        gap:8px;
+        color:var(--text-soft);
+        z-index:999;
+        transition:transform 160ms ease;
+      }
+
+      .toast.visible{
+        transform:translateX(-50%) translateY(0);
+      }
+
+      .toast-dot{
+        width:8px;
+        height:8px;
+        border-radius:999px;
+        background:var(--accent);
+      }
+
+      .toast-dot.error{
+        background:var(--danger);
+      }
+
+      .hidden{
+        display:none !important;
+      }
+
+      .mt-6{ margin-top:6px; }
+      .mt-8{ margin-top:8px; }
+      .ml-auto{ margin-left:auto; }
+      .th-left{ text-align:left; }
+      .th-right,
+      .td-right{ text-align:right; }
+
+      @media (max-width: 1024px){
+        .overview-grid{
+          grid-template-columns:repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 820px){
+        .app-shell{
+          grid-template-columns:1fr;
+        }
+
+        .side-nav{
+          position:fixed;
+          left:0;
+          top:0;
+          bottom:0;
+          width:min(84vw, 320px);
+          height:100vh;
+          transform:translateX(-105%);
+          transition:transform 180ms ease;
+          z-index:50;
+          border-right:1px solid rgba(255,255,255,0.10);
+        }
+
+        .side-nav.is-open{
+          transform:translateX(0);
+        }
+
+        .nav-toggle{
+          display:inline-flex;
+        }
+
+        body.nav-open{
+          overflow:hidden;
+        }
+
+        .nav-overlay{
+          position:fixed;
+          inset:0;
+          background:rgba(0,0,0,0.48);
+          opacity:0;
+          pointer-events:none;
+          transition:opacity 160ms ease;
+          z-index:40;
+        }
+
+        .nav-overlay.is-open{
+          opacity:1;
+          pointer-events:auto;
+        }
+
+        .main-shell{
+          padding:14px;
+        }
+
+        .top-bar{
+          align-items:flex-start;
+        }
+
+        .main-grid,
+        .field-row,
+        .field-row-3,
+        .settings-grid,
+        .mgmt-grid,
+        .tasks-grid{
+          grid-template-columns:1fr;
+        }
+
+        .history-table-wrap{
+          display:none;
+        }
+
+        .history-list{
+          display:flex;
+        }
+
+        .btn,
+        .pill{
+          width:100%;
+          justify-content:center;
+        }
+      }
+
+      @media (max-width: 599px){
+        .main-shell{
+          padding:12px;
+        }
+
+        .top-bar{
+          flex-direction:column;
+          align-items:stretch;
+          gap:8px;
+        }
+
+        .top-right{
+          width:100%;
+        }
+
+        .overview-grid{
+          grid-template-columns:1fr;
+        }
+
+        .card{
+          padding:16px;
+          border-radius:20px;
+        }
+
+        .brand-sub{
+          display:none;
+        }
+      }
+      </style>
+    </head>
+    <body>
+  <div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+  <div class="app-shell">
+    <!-- SIDEBAR ---------------------------------------------------- -->
+    <aside class="side-nav" id="sideNav" aria-label="Primary">
+      <div class="brand-block">
+        <div class="brand-logo">S1</div>
+        <div class="brand-text">
+          <div class="brand-title">StationOne</div>
+          <div class="brand-sub">Prep & labels App</div>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-label">Views</div>
+
+        <button class="nav-btn" data-view="overview">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">Overview</span>
+        </button>
+
+        <button class="nav-btn is-active" data-view="labels">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">Labels</span>
+        </button>
+
+        <button class="nav-btn" data-view="planner">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">Prep planner</span>
+        </button>
+
+        <button class="nav-btn" data-view="miv">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">MIV</span>
+        </button>
+
+        <button class="nav-btn" data-view="history">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">History</span>
+        </button>
+
+        <button class="nav-btn" data-view="tasks">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">Checklists</span>
+        </button>
+
+        <button class="nav-btn" data-view="settings">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">Settings</span>
+        </button>
+
+        <button class="nav-btn" data-view="management">
+          <span class="nav-btn-dot"></span>
+          <span class="nav-btn-text">Management</span>
+        </button>
+      </div>
+
+      <div class="side-nav-footer">
+        <button id="navCollapseBtn" class="nav-collapse-btn" title="Collapse sidebar">
+          <span class="nav-collapse-icon">⌖</span>
+          <span class="nav-collapse-text">Collapse</span>
+        </button>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:6px;">
+          StationOne v0.2 – local only. All data stays on this device / server.
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN --------------------------------------------------------- -->
+    <main class="main-shell">
+      <header class="top-bar">
+        <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-controls="sideNav" aria-expanded="false">☰</button>
+        <div class="top-left">
+          <div class="top-title">StationOne – Prep Station</div>
+          <div class="top-sub" id="storeSubtitle">
+            Connected to local server.
+          </div>
+        </div>
+        <div class="top-right">
+          <div class="pill">
+            <span class="pill-dot--green"></span>
+            Printer: <span id="printerStatusText">Ready</span>
+          </div>
+          <div class="pill">
+            <span class="pill-dot--blue"></span>
+            PWA – Local Only
+          </div>
+        </div>
+      </header>
+
+      <section class="views-shell">
+        <div class="views-inner">
+          <!-- OVERVIEW VIEW ------------------------------------------ -->
+          <section class="view view--overview" data-view-panel="overview">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Today’s Overview</div>
+                  <div class="card-subtitle">
+                    Live summary based on labels logged in <code>logs/labels-log.tsv</code>.
+                  </div>
+                </div>
+              </div>
+
+              <div class="overview-grid">
+                <div class="overview-stat">
+                  <div class="overview-stat-label">Total labels today</div>
+                  <div class="overview-stat-value" id="ovTodayTotal">0</div>
+                  <div class="muted">All products combined.</div>
+                </div>
+
+                <div class="overview-stat">
+                  <div class="overview-stat-label">Top product</div>
+                  <div class="overview-stat-value" id="ovTopProduct">—</div>
+                  <div class="muted">
+                    <span id="ovTopProductQty">0</span> labels.
+                  </div>
+                </div>
+
+                        <div class="overview-stat">
+                          <div class="overview-stat-label">Top staff</div>
+                          <div class="overview-stat-value" id="ovTopStaff">—</div>
+                          <div class="muted">Most prints today.</div>
+                        </div>
+
+                <div class="overview-stat">
+                  <div class="overview-stat-label">Last print at</div>
+                  <div class="overview-stat-value" id="ovLastPrint">—</div>
+                  <div class="muted">From server log.</div>
+                </div>
+              </div>
+
+              <div class="card-section-label">By product today</div>
+              <div class="overview-list" id="ovByProductList">
+                <!-- filled by JS -->
+              </div>
+
+                      <div class="card-footer-note">
+                        Data is powered by the backend <code>/api/overview</code> route.
+                      </div>
+            </article>
+
+            
+          </section>
+
+          <!-- PREP PLANNER VIEW ------------------------------------ -->
+          <section class="view view--planner" data-view-panel="planner">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Prep Planner</div>
+                  <div class="card-subtitle">
+                    Meat prep list for today. Set targets, enter what you already have, and send “Need” straight to labels.
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="card-section-label">Today’s list</div>
+                <div class="muted">
+                  Products are pulled from <code>data/products.json</code>. Edit which ones show here from the Management tab.
+                </div>
+              </div>
+
+              <div class="planner-table-wrap mt-8">
+                <table class="planner-table">
+                  <thead>
+                    <tr>
+                      <th class="th-left">Product</th>
+                      <th class="th-right">Target</th>
+                      <th class="th-right">Have</th>
+                      <th class="th-right">Need</th>
+                      <th class="th-right">Send → Labels</th>
+                    </tr>
+                  </thead>
+                  <tbody id="plannerTableBody">
+                    <!-- filled by JS -->
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="btn-row">
+                <button class="btn secondary" id="plannerResetBtn">Reset planner</button>
+              </div>
+
+              <div class="card-footer-note">
+                Planner values are saved on this device only. “Use” sets the quantity on the Labels tab for the selected product.
+              </div>
+            </article>
+          </section>
+          <!-- MIV VIEW ----------------------------------------------- -->
+          <section class="view view--miv" data-view-panel="miv">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">MIV Daily Tracker</div>
+                  <div class="card-subtitle">Quickly paste the MIV Total row and generate running targets.</div>
+                </div>
+              </div>
+
+              <div>
+                <div class="card-section-label">Paste MIV Total numbers</div>
+                <div class="muted">Paste the <code>MIV Total</code> numbers from Tanda, starting at 10am.</div>
+              </div>
+
+              <div>
+                <textarea id="miv-input" rows="3" style="width:100%; margin-top:8px;" placeholder="Example: 2 4 10 18 26 26 18 10 8 4 4 6 6 10 18 30 40 40 30 18 12 8 6 2"></textarea>
+              </div>
+
+              <div class="btn-row">
+                <button class="btn" id="miv-calc-btn">Calculate MIV Targets</button>
+              </div>
+
+              <h3 style="margin-top:12px; margin-bottom:6px;">Lunch Shift Targets</h3>
+              <table id="miv-lunch-table" class="miv-table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr><th style="text-align:left; border-bottom:1px solid var(--border-subtle);">Time</th><th style="text-align:right; border-bottom:1px solid var(--border-subtle);">Target (running total)</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <p><strong>Lunch total:</strong> <span id="miv-lunch-total">0</span> burgers</p>
+
+              <h3 style="margin-top:12px; margin-bottom:6px;">Dinner Shift Targets</h3>
+              <table id="miv-dinner-table" class="miv-table" style="width:100%; border-collapse:collapse;">
+                <thead>
+                  <tr><th style="text-align:left; border-bottom:1px solid var(--border-subtle);">Time</th><th style="text-align:right; border-bottom:1px solid var(--border-subtle);">Target (running total)</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+              <p><strong>Dinner total:</strong> <span id="miv-dinner-total">0</span> burgers</p>
+
+              <!-- Actual MIV (Z-Read) – part of the same page/card -->
+              <section class="miv-actuals">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Actual MIV (Z-Read)</div>
+                    <div class="card-subtitle">
+                      Paste numbers from the PLU breakdown & Z-Read. Bundles are handled separately.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-grid card-grid--2col"
+                     style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:8px;">
+                  <div class="field">
+                    <label class="field-label">Total burgers from PLU (no bundles)</label>
+                    <input id="zreadBaseCount" class="field-input" type="number" min="0" placeholder="e.g. 120" />
+                    <p class="muted">
+                      Add up beef, beyond, build, chicken, lamb, veggie, vegan, mini me, sliders, salads, Wicked/Oscar, etc.
+                      <strong>Don’t</strong> include bundles here.
+                    </p>
+                  </div>
+
+                  <div class="field">
+                    <label class="field-label">Bundles sold</label>
+                    <input id="zreadBundles" class="field-input" type="number" min="0" placeholder="e.g. 3" />
+                    <p class="muted">
+                      Each bundle counts as 4 burgers. We’ll auto-convert that into burgers.
+                    </p>
+                  </div>
+
+                  <div class="field">
+                    <label class="field-label">Gross sales from Z-Read ($)</label>
+                    <input id="zreadGrossSales" class="field-input" type="number" min="0" step="0.01"
+                           placeholder="e.g. 3232.64" />
+                  </div>
+
+                  <div class="field">
+                      <div class="field-label">Batch mode</div>
+                      <select id="mgmtBatchMode" title="Batch mode">
+                        <option value="MANUAL">Manual (type code)</option>
+                        <option value="USE_BY_DATE">Use-by on box (date input)</option>
+                        <option value="CHICKEN_SPECIAL">Chicken special (carton date = all)</option>
+                      </select>
+                      <div class="muted" style="margin-top:6px;">
+                        MANUAL = you type the box code. USE_BY_DATE = batch prints the box use-by date. CHICKEN_SPECIAL = prep/begin/use-by all equal the carton date.
+                      </div>
+                    </div>
+
+                    <div class="field">
+                    <label class="field-label">Target burgers this hour</label>
+                    <input id="zreadTarget" class="field-input" type="number" min="0" placeholder="e.g. 60" />
+                    <p class="muted">
+                      This comes from the MIV target we calculated above (for that specific hour block).
+                    </p>
+                  </div>
+                </div>
+
+                <button id="zreadCalcBtn" class="btn" style="margin-top:12px;">Calculate actuals</button>
+
+                <div class="miv-results">
+                  <div class="miv-result-row">
+                    <span class="muted">Actual burgers (incl. bundles):</span>
+                    <span id="zreadActualBurgers" class="pill pill--metric">0</span>
+                  </div>
+                  <div class="miv-result-row">
+                    <span class="muted">Average spend per customer:</span>
+                    <span id="zreadAvgSpend" class="pill pill--metric">$0.00</span>
+                  </div>
+                  <div class="miv-result-row">
+                    <span class="muted">Up / down vs target:</span>
+                    <span id="zreadDiff" class="pill pill--metric">0 burgers</span>
+                  </div>
+                </div>
+              </section>
+            </article>
+          </section>
+
+          <!-- LABELS VIEW -------------------------------------------- -->
+          <section class="view view--labels is-active" data-view-panel="labels">
+            <div class="main-grid">
+              <!-- Left card: form -->
+              <article class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Print Prep Labels</div>
+                    <div class="card-subtitle">
+                      Choose product, quantity, initials & prep time.
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="field-label">Product</div>
+                  <select id="labelProduct" title="Product"></select>
+                </div>
+
+                <div class="field-row">
+                  <div>
+                    <div class="field-label">Quantity</div>
+                    <input id="labelQuantity" title="Quantity" type="number" min="1" value="1" />
+                  </div>
+                  <div>
+                    <div>
+                      <div class="field-label">Printed by</div>
+                      <select id="printedByInput">
+                        <option value="">Select staff</option>
+                      </select>
+                    </div>
+                    <div style="margin-top:8px">
+                      <div class="field-label">Initials</div>
+                      <input id="labelInitials" title="Initials" type="text" maxlength="4" placeholder="EM" />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="field-label">Prep date</div>
+                  <input id="prepInput" title="Prep date" type="date" />
+                </div>
+
+                <div id="batchFields" style="margin-top:10px;">
+                  <div class="field-label" id="batchFieldsLabel">Batch / box code</div>
+
+                  <!-- Text batch (manual) -->
+                  <div id="batchFieldText">
+                    <input id="labelBatchText" title="Batch code" type="text" placeholder="Type the box / carton batch code" />
+                  </div>
+
+                  <!-- Date-based batch input (use-by on box/carton) -->
+                  <div id="batchFieldDate" style="display:none;">
+                    <input id="labelBatchDate" title="Box/carton use-by date" type="date" />
+                  </div>
+
+                  <div class="muted" id="labelBatchHelp" style="margin-top:6px;">
+                    Batch rules depend on the product.
+                  </div>
+                </div>
+
+
+                <div class="btn-row">
+                  <button class="btn" id="btnPrintNow">Print labels</button>
+                  <button class="btn secondary" id="btnPreviewOnly">
+                    Preview only
+                  </button>
+                </div>
+
+
+                <div class="card-header" style="margin-top:6px;">
+                  <div>
+                    <div class="card-title">Preview</div>
+                    <div class="card-subtitle">Sticker-scale preview (8cm × 5cm) – writing should match print placement.</div>
+                  </div>
+                </div>
+
+                <div id="previewCard" class="preview-card-container">
+                  <div class="sticker-preview" role="img" aria-label="Sticker preview">
+                    <!-- horizontal lines -->
+                    <div class="st-line st-h h1"></div>
+                    <div class="st-line st-h h2"></div>
+                    <div class="st-line st-h h3"></div>
+                    <div class="st-line st-h h4"></div>
+
+                    <!-- vertical lines -->
+                    <div class="st-line st-v leftSplit"></div>
+                    <div class="st-line st-v dotted"></div>
+                    <div class="st-line st-v solidMid"></div>
+
+                    <!-- printed labels -->
+                    <div class="st-text st-label prod">Product:</div>
+                    <div class="st-text st-label prep">Prep Date:</div>
+                    <div class="st-text st-label begin">Begin Using:</div>
+                    <div class="st-text st-label useby">Use By Date:</div>
+                    <div class="st-text st-label sign">Sign:</div>
+
+                    <!-- dynamic values -->
+                    <div class="st-text st-value prod" id="pvProduct">—</div>
+                    <div class="st-text st-value prep" id="pvPrep">—</div>
+                    <div class="st-text st-value begin" id="pvBegin">—</div>
+                    <div class="st-text st-value useby" id="pvUseBy">—</div>
+                    <div class="st-text st-value sign" id="pvSig">—</div>
+
+                    <!-- rotated right columns -->
+                    <div class="st-rot prod" id="pvRotProduct">Product</div>
+                    <div class="st-rot batch" id="pvRotBatch">Batch</div>
+                  </div>
+                </div>
+
+
+                <div class="card-footer-note">
+                  Uses store defaults for begin & use-by times per product.
+                </div>
+              </article>
+
+              
+            </div>
+
+      <!-- Meat prep cheat sheet card under Labels -->
+      <div class="card cheat-sheet-card">
+        <div class="card-header">
+          <div class="card-title">Meat prep cheat sheet</div>
+          <div class="card-subtitle">
+            Offsets are counted from the day it was prepped. Batch code matches the box / carton.
+          </div>
+        </div>
+        <div class="prep-cheatsheet" id="cheatSheetBody">
+          <!-- filled by JS based on products -->
+        </div>
+      </div>
+
+          </section>
+
+          <!-- HISTORY VIEW ------------------------------------------- -->
+          <section class="view view--history" data-view-panel="history">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Prep History</div>
+                  <div class="card-subtitle">
+                    Printed labels – filter by date or product.
+                  </div>
+                </div>
+              </div>
+
+              <div class="history-wrap">
+                <div class="history-filters">
+                  <div>
+                    <span class="card-section-label">Filter date</span>
+                    <input type="date" id="historyDateFilter" title="Filter date" />
+                  </div>
+                  <div>
+                    <span class="card-section-label">Product</span>
+                    <select id="historyProductFilter" title="Filter product">
+                      <option value="">All</option>
+                    </select>
+                  </div>
+
+                  <button class="btn secondary" id="btnClearHistoryFilters">Clear</button>
+                  <button class="btn secondary" id="btnExportHistory">Export PDF</button>
+                  <button class="btn secondary ml-auto" id="btnRefreshHistory">Refresh</button>
+                </div>
+
+                <!-- Desktop / tablet table -->
+                <div class="history-table-wrap">
+                  <div class="history-table-inner">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Time</th>
+                          <th>Product</th>
+                          <th>Qty</th>
+                          <th>Printed by</th>
+                          <th>Prep</th>
+                          <th>Begin</th>
+                          <th>Use by</th>
+                        </tr>
+                      </thead>
+                      <tbody id="historyTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <!-- Mobile cards -->
+                <div class="history-list" id="historyList"></div>
+              </div>
+
+              <div class="card-footer-note">
+                Need to adjust today’s targets? 
+                <button type="button" class="btn secondary" id="btnOpenPlannerFromHistory">
+                  Open prep planner
+                </button>
+              </div>
+            </article>
+          </section>
+
+          <!-- TASKS / CHECKLISTS VIEW -------------------------------- -->
+          <section class="view view--tasks" data-view-panel="tasks">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Open / Close Checklists</div>
+                  <div class="card-subtitle">
+                    Pulled from <code>data/tasks.json</code> via <code>/api/tasks</code>.
+                  </div>
+                </div>
+              </div>
+
+              <div class="tasks-grid" id="tasksGrid">
+                <!-- task groups rendered here -->
+              </div>
+
+              <div class="btn-row">
+                <button class="btn" id="btnSaveTasks">Save checklist state</button>
+                <button class="btn secondary" id="btnReloadTasks">Reload</button>
+              </div>
+
+              <div class="card-footer-note">
+                Changes are saved server-side so the team sees the same progress.
+              </div>
+            </article>
+          </section>
+
+          <!-- SETTINGS VIEW ------------------------------------------ -->
+          <section class="view view--settings" data-view-panel="settings">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Store & printer settings</div>
+                  <div class="card-subtitle">
+                    Stored on the server as JSON – update and save.
+                  </div>
+                </div>
+              </div>
+
+              <div class="settings-grid">
+                <div>
+                  <div class="field-label">Store name</div>
+                  <input id="settingsStoreName" type="text" placeholder="StationOne – Grill'd Toowoomba" />
+                </div>
+
+                <div>
+                  <div class="field-label">Timezone</div>
+                  <input id="settingsTimezone" type="text" placeholder="Australia/Brisbane" />
+                </div>
+
+                <div>
+                  <div class="field-label">Printer IP</div>
+                  <input id="settingsPrinterIp" type="text" placeholder="192.168.1.27" />
+                </div>
+
+                <div>
+                  <div class="field-label">Printer port</div>
+                  <input id="settingsPrinterPort" type="number" placeholder="9100" />
+                </div>
+
+                <div>
+                  <div class="field-label">Time format</div>
+                  <select id="settingsTimeFormat">
+                    <option value="24">24-hour</option>
+                    <option value="12">12-hour</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="btn-row">
+                <button class="btn" id="btnSaveSettings">Save settings</button>
+                <button class="btn secondary" id="btnReloadSettings">Reload</button>
+                <button class="btn danger" id="btnBurnTest">Burn test</button>
+              </div>
+
+              <div class="card-footer-note">
+                Burn test sends a single heat test label to the printer using <code>/api/burn-test</code>.
+              </div>
+            </article>
+          </section>
+
+          <!-- MANAGEMENT VIEW ---------------------------------------- -->
+          <section class="view view--management" data-view-panel="management">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Product Management</div>
+                  <div class="card-subtitle">
+                    Products pulled from <code>data/products.json</code>. Edit rules without touching code.
+                  </div>
+                </div>
+              </div>
+
+              <div class="mgmt-grid">
+                <!-- LEFT: product list -->
+                <div>
+                  <div class="card-section-label">Products</div>
+                  <div id="mgmtProductsList" class="chip-row"></div>
+
+                  <div class="btn-row mt-8">
+                    <button class="btn secondary" id="mgmtAddProductBtn">Add product</button>
+                  </div>
+
+                  <div class="card-footer-note">
+                    Click a product to edit rules. Deleting will hide it from use but keep history.
+                  </div>
+                </div>
+                <article class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">Staff Management</div>
+                      <div class="card-subtitle">
+                        Add, edit, and deactivate staff used by the print system.
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mgmt-grid">
+                    <div>
+                      <div class="card-section-label">Staff</div>
+                      <div id="mgmtStaffList" class="chip-row"></div>
+
+                      <div class="btn-row mt-8">
+                        <button class="btn secondary" id="mgmtAddStaffBtn">Add staff</button>
+                      </div>
+
+                      <div class="card-footer-note">
+                        Staff removed here are only deactivated, so print history stays intact.
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="card-section-label">Staff editor</div>
+                      <div class="muted" id="mgmtNoStaffHint">
+                        Select a staff member to edit their details.
+                      </div>
+
+                      <div id="mgmtStaffEditor" class="mgmt-editor hidden">
+                        <div class="field-row">
+                          <div>
+                            <div class="field-label">Name</div>
+                            <input id="mgmtStaffName" type="text" />
+                          </div>
+                          <div>
+                            <div class="field-label">ID</div>
+                            <input id="mgmtStaffId" type="text" disabled />
+                          </div>
+                        </div>
+
+                        <div class="field-row">
+                          <div>
+                            <div class="field-label">Initials</div>
+                            <input id="mgmtStaffInitials" type="text" maxlength="4" />
+                          </div>
+                          <div>
+                            <div class="field-label">Active</div>
+                            <select id="mgmtStaffActive">
+                              <option value="true">Active</option>
+                              <option value="false">Inactive</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="btn-row">
+                          <button class="btn" id="mgmtStaffSaveBtn">Save staff</button>
+                          <button class="btn danger" id="mgmtStaffDeactivateBtn">Deactivate</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </article>
+
+                <!-- RIGHT: editor -->
+                <div>
+                  <div class="card-section-label">Product rules</div>
+                  <div class="muted" id="mgmtNoProductHint">
+                    Select a product from the list to edit its name, units and shelf-life rules.
+                  </div>
+
+                  <div id="mgmtEditor" class="mgmt-editor hidden">
+                    <div class="field-row">
+                      <div>
+                        <div class="field-label">Name</div>
+                          <input id="mgmtName" title="Product name" type="text" />
+                      </div>
+                      <div>
+                        <div class="field-label">ID</div>
+                        <input id="mgmtId" title="Product ID" type="text" disabled />
+                      </div>
+                    </div>
+
+                    <div class="field-row">
+                      <div>
+                        <div class="field-label">Category</div>
+                        <input id="mgmtCategory" title="Category" type="text" placeholder="pattie / veg / hfc / bun" />
+                      </div>
+                      <div>
+                        <div class="field-label">Unit</div>
+                        <input id="mgmtUnit" title="Unit" type="text" placeholder="tubs / bags" />
+                      </div>
+                    </div>
+
+                    <div class="field-row">
+                      <div>
+                        <div class="field-label">Begin after (days)</div>
+                        <input id="mgmtBeginDays" title="Begin after (days)" type="number" min="0" />
+                      </div>
+                      <div>
+                        <div class="field-label">Use by (days from prep)</div>
+                        <input id="mgmtUseByDays" title="Use by (days)" type="number" min="0" />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div class="field-label">Batch code note</div>
+                      <input
+                        id="mgmtBatchNote"
+                        title="Batch code note"
+                        type="text"
+                        placeholder="code on box / use-by date on box / date on carton"
+                      />
+                    </div>
+
+                    <div class="field-row">
+                      <div>
+                        <div class="field-label">Display order</div>
+                        <input id="mgmtDisplayOrder" title="Display order" type="number" min="0" />
+                      </div>
+                      <div>
+                        <div class="field-label">Active</div>
+                        <select id="mgmtIsActive" title="Active">
+                          <option value="true">Active</option>
+                          <option value="false">Hidden</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="btn-row">
+                      <button class="btn" id="mgmtSaveBtn">Save changes</button>
+                      <button class="btn danger" id="mgmtDeleteBtn">Delete / hide</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </section>
+        </div>
+      </section>
+
+      <footer class="bottom-footer">
+        <span id="footerLastPrint">Last print: —</span>
+        <span>Host: local StationOne server</span>
+      </footer>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="toast-dot" id="toastDot"></span>
+    <span id="toastText">Ready.</span>
+  </div>
+
+  <script>
+    // Register service worker for PWA install (use minimal sw.js)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("/sw.js")
+          .then(() => console.log("SW registered"))
+          .catch((err) => console.error("Service worker registration failed", err));
+      });
+    }
+
+    (function () {
+      const apiBase = ""; // same origin
+
+      const state = {
+        products: [],
+        settings: null,
+        history: [],
+        lastPrintAt: null,
+        overview: null,
+        tasks: [],
+        staff: []
+      };
+
+      const $ = (sel, root = document) => root.querySelector(sel);
+      const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+      const el = {
+        navButtons: $$("[data-view]"),
+        views: $$("[data-view-panel]"),
+        productSelect: $("#labelProduct"),
+        qtyInput: $("#labelQuantity"),
+        initialsInput: $("#labelInitials"),
+        printedByInput: $("#printedByInput"),
+        prepInput: $("#prepInput"),
+        batchTextInput: $("#labelBatchText"),
+        batchDateInput: $("#labelBatchDate"),
+        batchFieldText: $("#batchFieldText"),
+        batchFieldDate: $("#batchFieldDate"),
+        batchFieldsLabel: $("#batchFieldsLabel"),
+        labelBatchHelp: $("#labelBatchHelp"),
+        btnPrintNow: $("#btnPrintNow"),
+        btnPreviewOnly: $("#btnPreviewOnly"),
+        pvProduct: $("#pvProduct"),
+        pvRotProduct: $("#pvRotProduct"),
+        pvRotBatch: $("#pvRotBatch"),
+        pvPrep: $("#pvPrep"),
+        pvBegin: $("#pvBegin"),
+        pvUseBy: $("#pvUseBy"),
+        pvSig: $("#pvSig"),
+        storeSubtitle: $("#storeSubtitle"),
+        footerLastPrint: $("#footerLastPrint"),
+        printerStatusText: $("#printerStatusText"),
+        // overview
+        ovTodayTotal: $("#ovTodayTotal"),
+        ovTopProduct: $("#ovTopProduct"),
+        ovTopProductQty: $("#ovTopProductQty"),
+        ovTopStaff: $("#ovTopStaff"),
+        ovLastPrint: $("#ovLastPrint"),
+        ovByProductList: $("#ovByProductList"),
+        // history
+        historyDateFilter: $("#historyDateFilter"),
+        historyProductFilter: $("#historyProductFilter"),
+        historyTableBody: $("#historyTableBody"),
+        historyList: $("#historyList"),
+        btnRefreshHistory: $("#btnRefreshHistory"),
+        btnClearHistoryFilters: $("#btnClearHistoryFilters"),
+        btnExportHistory: $("#btnExportHistory"),
+        btnOpenPlannerFromHistory: $("#btnOpenPlannerFromHistory"),
+        // settings
+        settingsStoreName: $("#settingsStoreName"),
+        settingsTimezone: $("#settingsTimezone"),
+        settingsPrinterIp: $("#settingsPrinterIp"),
+        settingsPrinterPort: $("#settingsPrinterPort"),
+        settingsTimeFormat: $("#settingsTimeFormat"),
+        btnSaveSettings: $("#btnSaveSettings"),
+        btnReloadSettings: $("#btnReloadSettings"),
+        btnBurnTest: $("#btnBurnTest"),
+        // mgmt
+        mgmtProductsList: $("#mgmtProductsList"),
+        mgmtAddProductBtn: $("#mgmtAddProductBtn"),
+        mgmtEditor: $("#mgmtEditor"),
+        mgmtNoProductHint: $("#mgmtNoProductHint"),
+        mgmtStaffList: $("#mgmtStaffList"),
+        mgmtAddStaffBtn: $("#mgmtAddStaffBtn"),
+        mgmtStaffEditor: $("#mgmtStaffEditor"),
+        mgmtNoStaffHint: $("#mgmtNoStaffHint"),
+        mgmtStaffId: $("#mgmtStaffId"),
+        mgmtStaffName: $("#mgmtStaffName"),
+        mgmtStaffInitials: $("#mgmtStaffInitials"),
+        mgmtStaffActive: $("#mgmtStaffActive"),
+        mgmtStaffSaveBtn: $("#mgmtStaffSaveBtn"),
+        mgmtStaffDeactivateBtn: $("#mgmtStaffDeactivateBtn"),
+        mgmtName: $("#mgmtName"),
+        mgmtId: $("#mgmtId"),
+        mgmtCategory: $("#mgmtCategory"),
+        mgmtUnit: $("#mgmtUnit"),
+        mgmtBeginDays: $("#mgmtBeginDays"),
+        mgmtUseByDays: $("#mgmtUseByDays"),
+        mgmtBatchNote: $("#mgmtBatchNote"),
+        mgmtDisplayOrder: $("#mgmtDisplayOrder"),
+        mgmtIsActive: $("#mgmtIsActive"),
+        mgmtSaveBtn: $("#mgmtSaveBtn"),
+        mgmtDeleteBtn: $("#mgmtDeleteBtn"),
+        // planner
+        plannerTableBody: $("#plannerTableBody"),
+        plannerResetBtn: $("#plannerResetBtn"),
+        // tasks
+        tasksGrid: $("#tasksGrid"),
+        btnSaveTasks: $("#btnSaveTasks"),
+        btnReloadTasks: $("#btnReloadTasks"),
+        // toast
+        toast: $("#toast"),
+        toastText: $("#toastText"),
+        toastDot: $("#toastDot"),
+      };
+
+      /* ---------------------- Helpers ----------------------- */
+
+      function showToast(message, kind = "info", timeoutMs = 2600) {
+        el.toastText.textContent = message;
+        el.toastDot.classList.toggle("error", kind === "error");
+        el.toast.classList.add("visible");
+        if (timeoutMs) {
+          setTimeout(() => {
+            el.toast.classList.remove("visible");
+          }, timeoutMs);
+        }
+      }
+
+
+      function formatLocalDate(dateStr) {
+        if (!dateStr) return "—";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "—";
+        const day = d.getDate();
+        const month = d.getMonth() + 1;
+        const year = String(d.getFullYear()).slice(-2);
+        return `${day}/${month}/${year}`;
+      }
+
+      function formatLocal(dateStr) {
+        if (!dateStr) return "—";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "—";
+        return d.toLocaleString(undefined, {
+          year: "2-digit",
+          month: "short",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function todayISODate() {
+        const d = new Date();
+        return d.toISOString().slice(0, 10); // yyyy-mm-dd
+      }
+
+
+      // Take yyyy-mm-dd from <input type="date"> and turn into ISO
+      function toISOFromLocalInput(dateStr) {
+        if (!dateStr) {
+          return new Date().toISOString();
+        }
+        // interpret as local midnight
+        const d = new Date(dateStr + 'T00:00:00');
+        if (isNaN(d.getTime())) {
+          return new Date().toISOString();
+        }
+        return d.toISOString();
+      }
+
+      // ISO -> yyyy-mm-dd for prefilling the input if we ever need it
+      function fromISOToLocalInput(iso) {
+        if (!iso) return "";
+        return iso.slice(0, 10); // yyyy-mm-dd
+      }
+
+      function ensurePrepInputDefault() {
+        if (!el.prepInput.value) {
+          const today = new Date();
+          const year = today.getFullYear();
+          const month = String(today.getMonth() + 1).padStart(2, "0");
+          const day = String(today.getDate()).padStart(2, "0");
+          // yyyy-mm-dd for <input type="date">
+          el.prepInput.value = `${year}-${month}-${day}`;
+        }
+      }
+
+      function calculateDatesForProduct(product, prepDate) {
+        const prep = new Date(prepDate || Date.now());
+        const begin = new Date(
+          prep.getTime() + (((product && product.prepToBeginHours) || 0) * 3600 * 1000)
+        );
+        const useBy = new Date(
+          prep.getTime() + (((product && product.prepToUseByHours) || 0) * 3600 * 1000)
+        );
+        return { prep, begin, useBy };
+      }
+
+      // Management helpers
+      let mgmtSelectedId = null;
+      let mgmtStaffSelectedId = null;
+
+      function fillMgmtEditor(product) {
+        if (!product) {
+          el.mgmtEditor.style.display = "none";
+          el.mgmtNoProductHint.style.display = "";
+          return;
+        }
+        el.mgmtEditor.style.display = "flex";
+        el.mgmtNoProductHint.style.display = "none";
+
+        el.mgmtId.value = product.id || "";
+        el.mgmtName.value = product.name || "";
+        el.mgmtCategory.value = product.category || "";
+        el.mgmtUnit.value = product.unit || "";
+
+        const beginDays = (product.prepToBeginHours || 0) / 24;
+        const useByDays = (product.prepToUseByHours || 0) / 24;
+
+        el.mgmtBeginDays.value = beginDays;
+        el.mgmtUseByDays.value = useByDays;
+        if (el.mgmtBatchMode) el.mgmtBatchMode.value = product.batchMode || "MANUAL";
+        el.mgmtBatchNote.value = product.batchCodeNote || "";
+        el.mgmtDisplayOrder.value = product.displayOrder || 0;
+        el.mgmtIsActive.value = product.isActive === false ? "false" : "true";
+      }
+
+      function renderMgmtProducts() {
+        el.mgmtProductsList.innerHTML = "";
+        state.products.forEach((p) => {
+          const chip = document.createElement("button");
+          chip.type = "button";
+          chip.className =
+            "chip" + (p.id === mgmtSelectedId ? " chip-active" : "");
+          chip.textContent = p.name;
+          chip.addEventListener("click", () => {
+            mgmtSelectedId = p.id;
+            renderMgmtProducts();
+            fillMgmtEditor(p);
+          });
+          el.mgmtProductsList.appendChild(chip);
+        });
+      }
+
+      async function mgmtAddProduct() {
+        const name = window.prompt("New product name?");
+        if (!name) return;
+
+        try {
+          const body = {
+            name,
+            category: "other",
+            unit: "tubs",
+            prepToBeginHours: 0,
+            prepToUseByHours: 24,
+            showInPlanner: true,
+            isActive: true,
+          };
+          const data = await apiJson("/api/products", "POST", body);
+          if (!data.ok) throw new Error("API error");
+
+          showToast("Product added");
+          await loadProducts();
+          mgmtSelectedId = data.product.id;
+          const p = state.products.find((x) => x.id === mgmtSelectedId);
+          fillMgmtEditor(p);
+          renderCheatSheet();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to add product", "error");
+        }
+      }
+
+      async function mgmtSaveCurrent() {
+        if (!mgmtSelectedId) {
+          showToast("Select a product first", "error");
+          return;
+        }
+
+        const beginDays = Number(el.mgmtBeginDays.value || 0);
+        const useByDays = Number(el.mgmtUseByDays.value || 0);
+
+        const body = {
+          name: el.mgmtName.value,
+          category: el.mgmtCategory.value,
+          unit: el.mgmtUnit.value,
+          prepToBeginHours: beginDays * 24,
+          prepToUseByHours: useByDays * 24,
+          batchMode: (el.mgmtBatchMode && el.mgmtBatchMode.value) ? el.mgmtBatchMode.value : "MANUAL",
+          batchCodeNote: el.mgmtBatchNote.value || undefined,
+          displayOrder: Number(el.mgmtDisplayOrder.value || 0),
+          isActive: el.mgmtIsActive.value === "true",
+        };
+
+        try {
+          const data = await apiJson(
+            "/api/products/" + encodeURIComponent(mgmtSelectedId),
+            "PUT",
+            body
+          );
+          if (!data.ok) throw new Error("API error");
+
+          showToast("Product updated");
+          await loadProducts();
+          mgmtSelectedId = data.product.id;
+          renderCheatSheet();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to save product", "error");
+        }
+      }
+
+      async function mgmtDeleteCurrent() {
+        if (!mgmtSelectedId) return;
+        if (!window.confirm("Hide this product from use?")) return;
+
+        try {
+          const data = await apiJson(
+            "/api/products/" + encodeURIComponent(mgmtSelectedId),
+            "DELETE",
+            {}
+          );
+          if (!data.ok) throw new Error("API error");
+
+          showToast("Product hidden");
+          mgmtSelectedId = null;
+          fillMgmtEditor(null);
+          await loadProducts();
+          renderCheatSheet();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to delete product", "error");
+        }
+      }
+
+      el.mgmtAddProductBtn.addEventListener("click", mgmtAddProduct);
+      el.mgmtSaveBtn.addEventListener("click", mgmtSaveCurrent);
+      el.mgmtDeleteBtn.addEventListener("click", mgmtDeleteCurrent);
+
+      // ---------------------- Staff Management ------------------
+      function renderMgmtStaff() {
+        const container = el.mgmtStaffList;
+        if (!container) return;
+        container.innerHTML = "";
+        (state.staff || []).forEach((s) => {
+          const chip = document.createElement('button');
+          chip.type = 'button';
+          chip.className = 'chip' + (s.id === mgmtStaffSelectedId ? ' chip-active' : '');
+          chip.textContent = (s.name || s.id || s.initials);
+          chip.addEventListener('click', () => {
+            mgmtStaffSelectedId = s.id;
+            renderMgmtStaff();
+            fillMgmtStaffEditor(s);
+          });
+          container.appendChild(chip);
+        });
+      }
+
+      function fillMgmtStaffEditor(s) {
+        const editor = el.mgmtStaffEditor;
+        if (!s) {
+          if (editor) editor.classList.add('hidden');
+          if (el.mgmtNoStaffHint) el.mgmtNoStaffHint.style.display = '';
+          return;
+        }
+        if (editor) editor.classList.remove('hidden');
+        if (el.mgmtNoStaffHint) el.mgmtNoStaffHint.style.display = 'none';
+        el.mgmtStaffId.value = s.id || '';
+        el.mgmtStaffName.value = s.name || '';
+        el.mgmtStaffInitials.value = s.initials || '';
+        el.mgmtStaffActive.value = s.active === false ? 'false' : 'true';
+      }
+
+      async function mgmtAddStaff() {
+        // Open empty editor for creating a new staff entry
+        mgmtStaffSelectedId = null;
+        fillMgmtStaffEditor({ id: '', name: '', initials: '', active: true });
+        renderMgmtStaff();
+      }
+
+      async function mgmtSaveStaff() {
+        // Validation
+        if (!el.mgmtStaffName.value || !el.mgmtStaffName.value.trim()) {
+          showToast('Name is required', 'error');
+          return;
+        }
+        if (!el.mgmtStaffInitials.value || !el.mgmtStaffInitials.value.trim()) {
+          showToast('Initials are required', 'error');
+          return;
+        }
+        if (el.mgmtStaffInitials.value.trim().length > 4) {
+          showToast('Initials must be 4 characters or less', 'error');
+          return;
+        }
+
+        try {
+          const body = {
+            name: el.mgmtStaffName.value.trim(),
+            initials: el.mgmtStaffInitials.value.trim(),
+            active: el.mgmtStaffActive.value === 'true'
+          };
+
+          if (!mgmtStaffSelectedId) {
+            // Create
+            const data = await apiJson('/api/staff', 'POST', body);
+            if (!data.ok) throw new Error('API error');
+            showToast('Staff added');
+          } else {
+            const data = await apiJson('/api/staff/' + encodeURIComponent(mgmtStaffSelectedId), 'PUT', body);
+            if (!data.ok) throw new Error('API error');
+            showToast('Staff updated');
+          }
+
+          await loadStaff();
+          renderMgmtStaff();
+        } catch (err) {
+          console.error(err);
+          showToast('Failed to save staff', 'error');
+        }
+      }
+
+      async function mgmtDeactivateStaff() {
+        if (!mgmtStaffSelectedId) return;
+        if (!window.confirm('Deactivate this staff member?')) return;
+        try {
+          const data = await apiJson('/api/staff/' + encodeURIComponent(mgmtStaffSelectedId), 'DELETE', {});
+          if (!data.ok) throw new Error('API error');
+          showToast('Staff deactivated');
+          mgmtStaffSelectedId = null;
+          if (el.mgmtStaffEditor) el.mgmtStaffEditor.classList.add('hidden');
+          await loadStaff();
+          renderMgmtStaff();
+        } catch (err) {
+          console.error(err);
+          showToast('Failed to deactivate staff', 'error');
+        }
+      }
+
+      // Attach staff handlers
+      if (el.mgmtAddStaffBtn) el.mgmtAddStaffBtn.addEventListener('click', mgmtAddStaff);
+      if (el.mgmtStaffSaveBtn) el.mgmtStaffSaveBtn.addEventListener('click', mgmtSaveStaff);
+      if (el.mgmtStaffDeactivateBtn) el.mgmtStaffDeactivateBtn.addEventListener('click', mgmtDeactivateStaff);
+
+      function renderCheatSheet() {
+        const container = document.getElementById("cheatSheetBody");
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (!state.products || !state.products.length) {
+          const empty = document.createElement("div");
+          empty.className = "muted";
+          empty.textContent = "No products configured yet.";
+          container.appendChild(empty);
+          return;
+        }
+
+        // Group by rule: beginDays, useByDays, batchCodeNote
+        const groupsMap = new Map();
+
+        state.products
+          .filter((p) => p.isActive !== false)
+          .forEach((p) => {
+            const beginDays = (p.prepToBeginHours || 0) / 24;
+            const useByDays = (p.prepToUseByHours || 0) / 24;
+            const batchNote = p.batchCodeNote || "use-by date on box";
+
+            const key = `${beginDays}|${useByDays}|${batchNote}`;
+            if (!groupsMap.has(key)) {
+              groupsMap.set(key, {
+                beginDays,
+                useByDays,
+                batchNote,
+                productNames: [],
+              });
+            }
+            groupsMap.get(key).productNames.push(p.name);
+          });
+
+        const groups = Array.from(groupsMap.values());
+
+        groups.forEach((group) => {
+          const row = document.createElement("div");
+          row.className = "prep-cheatsheet-row";
+
+          const prodSpan = document.createElement("span");
+          prodSpan.className = "prep-cheatsheet-product";
+          prodSpan.textContent = group.productNames.join(" / ");
+
+          const ruleSpan = document.createElement("span");
+          ruleSpan.className = "prep-cheatsheet-rule";
+          const pluralBegin = group.beginDays === 1 ? "" : "s";
+          const pluralUse = group.useByDays === 1 ? "" : "s";
+          ruleSpan.innerHTML =
+            `Begin <strong>+${group.beginDays} day${pluralBegin}</strong>, ` +
+            `Use by <strong>+${group.useByDays} day${pluralUse}</strong>` +
+            ` • Batch: ${group.batchNote}`;
+
+          row.appendChild(prodSpan);
+          row.appendChild(ruleSpan);
+          container.appendChild(row);
+        });
+      }
+
+
+      function formatLabelDateFromISO(iso){
+        if (!iso) return "";
+        return formatLocalDate(new Date(iso).toISOString());
+      }
+
+      function toggleBatchFields(product){
+        const mode = (product && product.batchMode) ? product.batchMode : "MANUAL";
+        if (!el.batchFieldText || !el.batchFieldDate) return;
+        // Update label so it matches what the user is actually entering
+        if (el.batchFieldsLabel) {
+          el.batchFieldsLabel.textContent = (mode === "USE_BY_DATE" || mode === "CHICKEN_SPECIAL")
+            ? "Use-by date on box / carton"
+            : "Batch / box code";
+        }
+        if (mode === "USE_BY_DATE" || mode === "CHICKEN_SPECIAL") {
+          el.batchFieldText.style.display = "none";
+          el.batchFieldDate.style.display = "block";
+          if (el.labelBatchHelp) {
+            el.labelBatchHelp.textContent = mode === "CHICKEN_SPECIAL"
+              ? "Chicken: enter the carton use-by date (it prints as batch, AND prep/begin/use-by on the label will match)."
+              : "Enter the use-by date printed on the box (this prints as the batch code only – label use-by still follows store offsets).";
+          }
+        } else {
+          el.batchFieldText.style.display = "block";
+          el.batchFieldDate.style.display = "none";
+          if (el.labelBatchHelp) el.labelBatchHelp.textContent = "Type the batch code from the box / carton.";
+        }
+      }
+
+      function getBatchForSelectedProduct(product){
+        const mode = (product && product.batchMode) ? product.batchMode : "MANUAL";
+        if (mode === "USE_BY_DATE" || mode === "CHICKEN_SPECIAL") {
+          const iso = toISOFromLocalInput(el.batchDateInput && el.batchDateInput.value);
+          return iso ? formatLocalDate(new Date(iso).toISOString()) : "";
+        }
+        return (el.batchTextInput && el.batchTextInput.value ? el.batchTextInput.value : "").trim();
+      }
+
+
+      function updatePreviewCard() {
+        const selected = state.products.find(
+          (p) => p.id === el.productSelect.value
+        );
+
+        toggleBatchFields(selected);
+
+        const initials =
+          (el.initialsInput.value || "").trim().toUpperCase().slice(0, 4) || "—";
+
+        ensurePrepInputDefault();
+        let prepISO = toISOFromLocalInput(el.prepInput.value);
+
+        // Calculate base dates from prep date + offsets
+        let { prep: prepDt, begin, useBy } = calculateDatesForProduct(
+          selected,
+          prepISO
+        );
+
+        // Chicken special: carton date sets the use-by/batch only; prep/begin stay as the prep date
+        const mode = (selected && selected.batchMode) ? selected.batchMode : "MANUAL";
+        if (mode === "CHICKEN_SPECIAL") {
+          const cartonISO = toISOFromLocalInput(el.batchDateInput && el.batchDateInput.value);
+          if (cartonISO) {
+            const d = new Date(cartonISO);
+            // Keep prepDt as the user-entered prep date; begin should default to prep
+            begin = prepDt;
+            useBy = d;
+          }
+        }
+
+        el.pvProduct.textContent = selected ? selected.name : "—";
+        el.pvRotProduct.textContent = selected ? selected.name : "Product";
+
+        // Sticker should only show dates, not times
+        const prepText = formatLocalDate(prepDt.toISOString());
+        const beginText = formatLocalDate(begin.toISOString());
+        const useByText = formatLocalDate(useBy.toISOString());
+
+        el.pvPrep.textContent = prepText;
+        el.pvBegin.textContent = beginText;
+        el.pvUseBy.textContent = useByText;
+
+        const batchText = getBatchForSelectedProduct(selected) || useByText || "Batch";
+        el.pvRotBatch.textContent = batchText;
+
+        el.pvSig.textContent = initials || "—";
+      }
+
+      /* ---------------------- Navigation -------------------- */
+
+      function switchView(viewId) {
+        el.navButtons.forEach((btn) => {
+          const isActive = btn.dataset.view === viewId;
+          btn.classList.toggle("is-active", isActive);
+        });
+
+        el.views.forEach((panel) => {
+          const isActive = panel.dataset.viewPanel === viewId;
+          panel.classList.toggle("is-active", isActive);
+        });
+      }
+
+      const MANAGEMENT_PIN = "2008";
+      let managementUnlocked = false;
+
+      el.navButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.view;
+
+          if (id === "management" && !managementUnlocked) {
+            const code = window.prompt("Enter 4-digit code to access Management:");
+            if (code !== MANAGEMENT_PIN) {
+              showToast("Incorrect code", "error");
+              return;
+            }
+            managementUnlocked = true;
+            showToast("Management unlocked");
+          }
+
+          switchView(id);
+        });
+      });
+
+      /* ---------------------- API Calls --------------------- */
+
+      async function apiGet(path) {
+        const res = await fetch(apiBase + path);
+        if (!res.ok) throw new Error(res.status + " " + res.statusText);
+        return res.json();
+      }
+
+      async function apiJson(path, method, body) {
+        const res = await fetch(apiBase + path, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) {
+          let msg = res.status + " " + res.statusText;
+          try {
+            const data = await res.json();
+            if (data && data.error) msg = data.error;
+          } catch {}
+          throw new Error(msg);
+        }
+        return res.json();
+      }
+
+      /* ---------------------- Load Products ----------------- */
+      /* ---------------------- Prep Planner ----------------- */
+
+      const PLANNER_STORAGE_KEY = "stationOne_planner_v1";
+
+      function loadPlannerState() {
+        try {
+          return JSON.parse(localStorage.getItem(PLANNER_STORAGE_KEY)) || {};
+        } catch {
+          return {};
+        }
+      }
+
+      function savePlannerState(state) {
+        try {
+          localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(state));
+        } catch {
+          // ignore
+        }
+      }
+
+      function recalcPlannerTable() {
+        if (!el.plannerTableBody) return;
+        const rows = Array.from(el.plannerTableBody.querySelectorAll("tr[data-id]"));
+        const stateObj = {};
+
+        rows.forEach((row) => {
+          const id = row.dataset.id;
+          const targetInput = row.querySelector("input[data-role='target']");
+          const haveInput = row.querySelector("input[data-role='have']");
+          const needSpan = row.querySelector("span[data-role='need']");
+
+          const target = Number(targetInput.value || 0);
+          const have = Number(haveInput.value || 0);
+          let need = target - have;
+          if (need < 0) need = 0;
+
+          needSpan.textContent = need;
+          stateObj[id] = { target, have, need };
+        });
+
+        savePlannerState(stateObj);
+      }
+
+      function buildPlannerRows() {
+        if (!el.plannerTableBody) return;
+        const stored = loadPlannerState();
+        el.plannerTableBody.innerHTML = "";
+
+        state.products
+          .filter((p) => p.isActive !== false && p.showInPlanner !== false)
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+          .forEach((p) => {
+            const saved = stored[p.id] || {};
+            const tr = document.createElement("tr");
+            tr.dataset.id = p.id;
+            tr.innerHTML =
+              "<td class='td-left'>" + p.name + "</td>" +
+              '<td class="td-right"><input type="number" min="0" class="planner-input" data-role="target" value="' + (saved.target ?? "") + '"></td>' +
+              '<td class="td-right"><input type="number" min="0" class="planner-input" data-role="have" value="' + (saved.have ?? "") + '"></td>' +
+              '<td class="td-right"><span data-role="need">' + (saved.need ?? 0) + "</span></td>" +
+              '<td class="td-right"><button type="button" class="btn secondary planner-send">Use</button></td>';
+
+            el.plannerTableBody.appendChild(tr);
+          });
+
+        recalcPlannerTable();
+      }
+
+      function attachPlannerHandlers() {
+        if (!el.plannerTableBody) return;
+
+        // Recalc on any input change
+        el.plannerTableBody.addEventListener("input", (ev) => {
+          if (ev.target.matches(".planner-input")) {
+            recalcPlannerTable();
+          }
+        });
+
+        // “Use” sends Need → Labels
+        el.plannerTableBody.addEventListener("click", (ev) => {
+          const btn = ev.target.closest(".planner-send");
+          if (!btn) return;
+
+          const row = btn.closest("tr[data-id]");
+          if (!row) return;
+
+          const id = row.dataset.id;
+          const needSpan = row.querySelector("span[data-role='need']");
+          const need = Number(needSpan.textContent || 0);
+
+          if (!need || need <= 0) {
+            showToast("Need is 0 – nothing to send.", "error");
+            return;
+          }
+
+          const product = state.products.find((p) => p.id === id);
+          if (!product) {
+            showToast("Product not found.", "error");
+            return;
+          }
+
+          el.productSelect.value = id;
+          el.qtyInput.value = need;
+          updatePreviewCard();
+          showToast(`Planner → Labels: ${product.name} x${need}`);
+
+          // jump straight to Labels view
+          switchView("labels");
+        });
+
+        if (el.plannerResetBtn) {
+          el.plannerResetBtn.addEventListener("click", () => {
+            if (!el.plannerTableBody) return;
+            el.plannerTableBody
+              .querySelectorAll(".planner-input")
+              .forEach((input) => {
+                input.value = "";
+              });
+            recalcPlannerTable();
+          });
+        }
+      }
+
+      attachPlannerHandlers();
+
+      /* ---------------------- MIV Calculator ----------------- */
+
+      function calculateMivTargets(hourValues) {
+        const nums = hourValues.map(n => Number(n) || 0);
+
+        const result = {
+          lunch: {},
+          dinner: {},
+          lunchTotal: 0,
+          dinnerTotal: 0,
+        };
+
+        // ---- LUNCH ----
+        let sum = 0;
+        let i = 0;
+
+        // Open–12pm: first 3 numbers
+        sum += (nums[i] || 0) + (nums[i+1] || 0) + (nums[i+2] || 0);
+        i += 3;
+        result.lunch["Open–12pm"] = sum;
+
+        // 12–1, 1–2, 2–3, 3–4, 4–5 → each adds 2 more numbers
+        const lunchBlocks = ["12–1pm", "1–2pm", "2–3pm", "3–4pm", "4–5pm"];
+        for (const label of lunchBlocks) {
+          sum += (nums[i] || 0) + (nums[i+1] || 0);
+          i += 2;
+          result.lunch[label] = sum;
+        }
+        result.lunchTotal = sum;
+
+        // ---- DINNER ----
+        sum = 0;
+
+        // 5–6pm: next 2 numbers
+        sum += (nums[i] || 0) + (nums[i+1] || 0);
+        i += 2;
+        result.dinner["5–6pm"] = sum;
+
+        // 6–7pm: next 2
+        sum += (nums[i] || 0) + (nums[i+1] || 0);
+        i += 2;
+        result.dinner["6–7pm"] = sum;
+
+        // 7–8pm: next 2
+        sum += (nums[i] || 0) + (nums[i+1] || 0);
+        i += 2;
+        result.dinner["7–8pm"] = sum;
+
+        // 8pm–Close: all remaining numbers
+        while (i < nums.length) {
+          sum += nums[i] || 0;
+          i++;
+        }
+        result.dinner["8pm–Close"] = sum;
+        result.dinnerTotal = sum;
+
+        return result;
+      }
+
+      function parseMivInput() {
+        const raw = (document.getElementById('miv-input') || { value: '' }).value.trim();
+        if (!raw) return [];
+        return raw.split(/[\s,]+/).map(v => Number(v)).filter(v => !Number.isNaN(v));
+      }
+
+      function renderMivTable(tableBodyEl, dataObj) {
+        if (!tableBodyEl) return;
+        tableBodyEl.innerHTML = '';
+        for (const [time, value] of Object.entries(dataObj)) {
+          const tr = document.createElement('tr');
+          const tdTime = document.createElement('td');
+          const tdVal = document.createElement('td');
+          tdTime.textContent = time;
+          tdVal.textContent = value;
+          tdVal.style.textAlign = 'right';
+          tr.appendChild(tdTime);
+          tr.appendChild(tdVal);
+          tableBodyEl.appendChild(tr);
+        }
+      }
+
+      // Wire up MIV calc button if present
+      const mivBtn = document.getElementById('miv-calc-btn');
+      if (mivBtn) {
+        mivBtn.addEventListener('click', () => {
+          const values = parseMivInput();
+          if (values.length < 15) {
+            alert('You need to paste at least 15 numbers from the MIV Total row (starting at 10am).');
+            return;
+          }
+
+          const result = calculateMivTargets(values);
+
+          renderMivTable(document.querySelector('#miv-lunch-table tbody'), result.lunch);
+          renderMivTable(document.querySelector('#miv-dinner-table tbody'), result.dinner);
+
+          const lunchTotalEl = document.getElementById('miv-lunch-total');
+          const dinnerTotalEl = document.getElementById('miv-dinner-total');
+          if (lunchTotalEl) lunchTotalEl.textContent = result.lunchTotal;
+          if (dinnerTotalEl) dinnerTotalEl.textContent = result.dinnerTotal;
+
+          // Build a lookup of targets keyed by the time-blocks used in the Actuals selector
+          // Map our internal labels to the common time block keys
+          const targets = {};
+          targets['10–12pm'] = result.lunch['Open–12pm'] || 0;
+          ['12–1pm','1–2pm','2–3pm','3–4pm','4–5pm'].forEach(k => targets[k] = result.lunch[k] || 0);
+          targets['5–6pm'] = result.dinner['5–6pm'] || 0;
+          targets['6–7pm'] = result.dinner['6–7pm'] || 0;
+          targets['7–8pm'] = result.dinner['7–8pm'] || 0;
+          // map both possible keys for the last block
+          targets['8–Close'] = result.dinner['8pm–Close'] || result.dinner['8–Close'] || 0;
+
+          // expose for other handlers
+          window.mivTargets = targets;
+        });
+      }
+
+      /* ---------------------- MIV Actuals helpers ----------------- */
+
+      (function setupZReadMivCalculator() {
+        const baseInput = document.getElementById("zreadBaseCount");
+        const bundlesInput = document.getElementById("zreadBundles");
+        const grossInput = document.getElementById("zreadGrossSales");
+        const targetInput = document.getElementById("zreadTarget");
+
+        const actualEl = document.getElementById("zreadActualBurgers");
+        const avgEl = document.getElementById("zreadAvgSpend");
+        const diffEl = document.getElementById("zreadDiff");
+        const btn = document.getElementById("zreadCalcBtn");
+
+        if (!btn) return;
+
+        function calc() {
+          const base = Number(baseInput.value) || 0;
+          const bundles = Number(bundlesInput.value) || 0;
+          const gross = Number(grossInput.value) || 0;
+          const target = Number(targetInput.value) || 0;
+
+          const actualBurgers = base + bundles * 4;
+          const avgSpend = actualBurgers > 0 ? gross / actualBurgers : 0;
+          const diff = actualBurgers - target;
+
+          if (actualEl) actualEl.textContent = actualBurgers.toString();
+          if (avgEl) avgEl.textContent = actualBurgers > 0 ? `$${avgSpend.toFixed(2)}` : "$0.00";
+
+          let diffText = `${Math.abs(diff)} burgers`;
+          if (diff > 0) diffText = `▲ Up ${diffText}`;
+          else if (diff < 0) diffText = `▼ Down ${diffText}`;
+          else diffText = "On target";
+
+          if (diffEl) diffEl.textContent = diffText;
+        }
+
+        btn.addEventListener("click", calc);
+      })();
+
+
+      /* ---------------------- Load Products ----------------- */
+      async function loadProducts() {
+        try {
+          const data = await apiGet("/api/products");
+          if (!data.ok) throw new Error("API error");
+          state.products = (data.products || []).map((p) => {
+            // Safe default: if Chicken doesn't have a batchMode yet, treat it as the special carton-date rule.
+            // This avoids breaking existing installs where products.json predates the batchMode field.
+            if ((!p.batchMode || p.batchMode === "") && typeof p.name === "string" && p.name.trim().toLowerCase() === "chicken") {
+              return { ...p, batchMode: "CHICKEN_SPECIAL" };
+            }
+            return p;
+          });
+
+          // Fill label product select
+          el.productSelect.innerHTML = "";
+          state.products
+            .filter((p) => p.isActive !== false)
+            .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+            .forEach((p) => {
+              const opt = document.createElement("option");
+              opt.value = p.id;
+              opt.textContent = p.name;
+              el.productSelect.appendChild(opt);
+            });
+
+          // Fill history filter & mgmt chips
+          el.historyProductFilter.innerHTML = "<option value=\"\">All</option>";
+          state.products.forEach((p) => {
+            const opt = document.createElement("option");
+            opt.value = p.name;
+            opt.textContent = p.name;
+            el.historyProductFilter.appendChild(opt);
+          });
+
+          renderMgmtProducts();
+          renderCheatSheet();
+          buildPlannerRows();
+          updatePreviewCard();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load products", "error");
+        }
+      }
+
+      /* ---------------------- Settings ---------------------- */
+
+      async function loadSettings() {
+        try {
+          const data = await apiGet("/api/settings");
+          if (!data.ok) throw new Error("API error");
+          state.settings = data.settings || {};
+
+          const s = state.settings;
+          el.settingsStoreName.value = s.storeName || "";
+          el.settingsTimezone.value = s.timezone || "";
+          el.settingsPrinterIp.value = s.printerIp || "";
+          el.settingsPrinterPort.value = s.printerPort || "";
+          el.settingsTimeFormat.value = s.timeFormat24h === false ? "12" : "24";
+
+          el.storeSubtitle.textContent =
+            (s.storeName || "StationOne store") +
+            " • TZ: " +
+            (s.timezone || "Australia/Brisbane");
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load settings", "error");
+        }
+      }
+
+      async function saveSettings() {
+        try {
+          const body = {
+            storeName: el.settingsStoreName.value || undefined,
+            timezone: el.settingsTimezone.value || undefined,
+            printerIp: el.settingsPrinterIp.value || undefined,
+            printerPort: el.settingsPrinterPort.value
+              ? Number(el.settingsPrinterPort.value)
+              : undefined,
+            timeFormat24h: el.settingsTimeFormat.value === "24",
+          };
+          const data = await apiJson("/api/settings", "PUT", body);
+          if (!data.ok) throw new Error("API error");
+          state.settings = data.settings;
+          showToast("Settings saved");
+          loadSettings();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to save settings", "error");
+        }
+      }
+
+      el.btnSaveSettings.addEventListener("click", saveSettings);
+      el.btnReloadSettings.addEventListener("click", loadSettings);
+
+      // Burn test
+      el.btnBurnTest.addEventListener("click", async () => {
+        try {
+          const res = await apiGet("/api/burn-test");
+          if (!res.ok) throw new Error("API error");
+          showToast("Burn test sent to printer");
+        } catch (err) {
+          console.error(err);
+          showToast("Burn test failed", "error");
+        }
+      });
+
+      /* ---------------------- History ----------------------- */
+
+      function filterHistoryItem(item) {
+        const dateFilter = el.historyDateFilter.value; // yyyy-mm-dd
+        const productFilter = el.historyProductFilter.value;
+
+        if (dateFilter) {
+          if (!item.timestamp || !item.timestamp.startsWith(dateFilter)) {
+            return false;
+          }
+        }
+
+        if (productFilter) {
+          if (item.productName !== productFilter) return false;
+        }
+
+        return true;
+      }
+
+      function getFilteredHistoryRows() {
+        return state.history.filter(filterHistoryItem);
+      }
+
+      function renderHistory() {
+        const rows = getFilteredHistoryRows();
+
+        // Table
+        el.historyTableBody.innerHTML = "";
+        rows.forEach((item) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML =
+            "<td>" + formatLocal(item.timestamp) + "</td>" +
+            "<td>" + (item.productName || "") + "</td>" +
+            "<td>" + (item.quantity || "") + "</td>" +
+            "<td>" + (item.printedBy || item.initials || "") + "</td>" +
+            "<td>" + (item.prepDate || "") + "</td>" +
+            "<td>" + (item.beginUsing || "") + "</td>" +
+            "<td>" + (item.useBy || "") + "</td>";
+          el.historyTableBody.appendChild(tr);
+        });
+
+        // Mobile cards
+        el.historyList.innerHTML = "";
+        rows.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "history-item";
+          div.innerHTML =
+            '<div class="history-item-top">' +
+              '<span class="history-item-main">' +
+              (item.productName || "") +
+              "</span>" +
+              '<span>x' +
+              (item.quantity || "") +
+              "</span>" +
+            "</div>" +
+            "<div>" + formatLocal(item.timestamp) + "</div>" +
+              '<div class="history-item-meta">' +
+              "<span>Sign: " +
+              (item.printedBy || item.initials || "") +
+              "</span>" +
+              "<span>Use: " +
+              (item.useBy || "") +
+              "</span>" +
+            "</div>";
+          el.historyList.appendChild(div);
+        });
+      }
+
+      function exportHistoryToPdf() {
+        const rows = getFilteredHistoryRows();
+        const plannerState = loadPlannerState(); // uses same key as planner tab
+        const now = new Date().toLocaleString();
+
+        // Build planner section (only products with any values)
+        const plannerRows = [];
+        state.products
+          .filter(p => p.isActive !== false && p.showInPlanner !== false)
+          .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+          .forEach(p => {
+            const saved = plannerState[p.id] || {};
+            const target = saved.target ?? "";
+            const have = saved.have ?? "";
+            const need = saved.need ?? "";
+            if (target || have || need) {
+              plannerRows.push({
+                name: p.name,
+                target,
+                have,
+                need
+              });
+            }
+          });
+
+        let html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>StationOne – History Export</title>
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 12px; padding: 16px; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    h2 { font-size: 16px; margin: 16px 0 4px; }
+    .small { font-size: 11px; color: #555; margin-bottom: 12px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 18px; }
+    th, td { border: 1px solid #999; padding: 4px 6px; text-align: left; }
+    th { background: #eee; }
+  
+    /* Off-canvas nav for mobile + iPad (Mode B) ---------------------- */
+    @media (max-width: 820px){
+      .app-shell{
+        grid-template-columns: 1fr;
+      }
+
+      /* keep sidebar as drawer */
+      .side-nav{
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: min(78vw, 320px);
+        height: 100vh;
+        z-index: 60;
+        transform: translateX(-105%);
+        transition: transform 180ms ease;
+        border-right: 1px solid rgba(148, 163, 184, 0.18);
+        flex-direction: column;
+      }
+      .side-nav.is-open{
+        transform: translateX(0);
+      }
+
+      .nav-toggle{
+        display: inline-flex;
+      }
+
+      body.nav-open{
+        overflow: hidden;
+      }
+
+      /* make layouts single-column so Preview sits under Print */
+      .main-grid{
+        grid-template-columns: 1fr !important;
+      }
+    }
+
+
+      /* Labels view: single-column for desktop too (mobile + iPad first). */
+      .view--labels .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+    </style>
+</head>
+<body>
+  <h1>StationOne – Prep History</h1>
+  <div class="small">Export generated at ${now}</div>
+`;
+
+        if (plannerRows.length) {
+          html += `
+  <h2>Today’s prep planner</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Target</th>
+        <th>Have</th>
+        <th>Need</th>
+      </tr>
+    </thead>
+    <tbody>
+`;
+          plannerRows.forEach(row => {
+            html += `
+      <tr>
+        <td>${row.name}</td>
+        <td>${row.target}</td>
+        <td>${row.have}</td>
+        <td>${row.need}</td>
+      </tr>`;
+          });
+          html += `
+    </tbody>
+  </table>
+`;
+        }
+
+        html += `
+  <h2>Printed label history</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Time</th>
+        <th>Product</th>
+        <th>Qty</th>
+        <th>Initials</th>
+        <th>Prep</th>
+        <th>Begin</th>
+        <th>Use by</th>
+      </tr>
+    </thead>
+    <tbody>
+`;
+
+        rows.forEach(item => {
+          html += `
+      <tr>
+        <td>${formatLocal(item.timestamp)}</td>
+        <td>${item.productName || ""}</td>
+        <td>${item.quantity || ""}</td>
+        <td>${item.initials || ""}</td>
+        <td>${item.prepDate || ""}</td>
+        <td>${item.beginUsing || ""}</td>
+        <td>${item.useBy || ""}</td>
+      </tr>`;
+        });
+
+        html += `
+    </tbody>
+  </table>
+</body>
+</html>
+`;
+
+        const win = window.open("", "_blank");
+        if (!win) {
+          showToast("Popup blocked – allow popups to export", "error");
+          return;
+        }
+        win.document.write(html);
+        win.document.close();
+        win.focus();
+        win.print();
+      }
+
+      async function loadHistory() {
+        try {
+          const data = await apiGet("/api/logs");
+          if (!data.ok) throw new Error("API error");
+          state.history = data.logs || [];
+          if (state.history.length) {
+            state.lastPrintAt = state.history[0].timestamp;
+            el.footerLastPrint.textContent =
+              "Last print: " + formatLocal(state.lastPrintAt);
+          }
+          renderHistory();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load history", "error");
+        }
+      }
+
+      el.historyDateFilter.value = todayISODate();
+      el.historyDateFilter.addEventListener("change", renderHistory);
+      el.historyProductFilter.addEventListener("change", renderHistory);
+      el.btnRefreshHistory.addEventListener("click", loadHistory);
+
+      el.btnClearHistoryFilters.addEventListener("click", () => {
+        el.historyDateFilter.value = "";
+        el.historyProductFilter.value = "";
+        renderHistory();
+      });
+
+      el.btnExportHistory.addEventListener("click", exportHistoryToPdf);
+
+      if (el.btnOpenPlannerFromHistory) {
+        el.btnOpenPlannerFromHistory.addEventListener("click", () => {
+          switchView("planner");
+        });
+      }
+
+      /* ---------------------- Printing ---------------------- */
+
+      async function sendPrint(previewOnly) {
+        try {
+          const productId = el.productSelect.value;
+          if (!productId) {
+            showToast("Select a product first", "error");
+            return;
+          }
+          const quantity = Math.max(1, Number(el.qtyInput.value || 1));
+          const initials =
+            (el.initialsInput.value || "").trim().toUpperCase().slice(0, 4);
+          if (!initials) {
+            showToast("Enter initials", "error");
+            return;
+          }
+
+          ensurePrepInputDefault();
+          const prepDateISO = toISOFromLocalInput(el.prepInput.value);
+          const product = state.products.find(p => p.id === productId);
+          const batch = getBatchForSelectedProduct(product);
+          const mode = (product && product.batchMode) ? product.batchMode : "MANUAL";
+          if (mode === "MANUAL" && !batch) { showToast("Enter batch / box code", "error"); return; }
+          if ((mode === "USE_BY_DATE" || mode === "CHICKEN_SPECIAL") && !(el.batchDateInput && el.batchDateInput.value)) { showToast("Enter box / carton use-by date", "error"); return; }
+
+          const printedBySelected = (el.printedByInput && el.printedByInput.value) ? (el.printedByInput.value || "") : "";
+          if (!printedBySelected) { showToast("Select staff (Printed by)", "error"); return; }
+
+          const body = {
+            productId,
+            quantity,
+            initials,
+            printedBy: printedBySelected,
+            prepDate: prepDateISO,
+            previewOnly: !!previewOnly,
+            batch,
+            sameDates: mode === "CHICKEN_SPECIAL",
+            overrideUseByISO:
+              (mode === "USE_BY_DATE" || mode === "CHICKEN_SPECIAL") && el.batchDateInput?.value
+                ? toISOFromLocalInput(el.batchDateInput.value)
+                : undefined,
+          };
+
+          const data = await apiJson("/api/print-label", "POST", body);
+          if (!data.ok) throw new Error("API error");
+
+          if (previewOnly) {
+            // No history refresh – previews shouldn't appear in log view
+            showToast("Preview generated (no print sent)");
+            return;
+          }
+
+          showToast("Labels sent to printer");
+          // Only reload when a real print happened
+          await loadHistory();
+          await loadOverview();
+        } catch (err) {
+          console.error(err);
+          showToast("Print failed: " + err.message, "error");
+        }
+      }
+
+      el.btnPrintNow.addEventListener("click", () => sendPrint(false));
+      el.btnPreviewOnly.addEventListener("click", () => sendPrint(true));
+
+      el.productSelect.addEventListener("change", updatePreviewCard);
+      el.initialsInput.addEventListener("input", updatePreviewCard);
+      el.prepInput.addEventListener("change", updatePreviewCard);
+      if (el.batchTextInput) el.batchTextInput.addEventListener("input", updatePreviewCard);
+      if (el.batchDateInput) el.batchDateInput.addEventListener("change", updatePreviewCard);
+
+      /* ---------------------- Overview ---------------------- */
+
+      async function loadOverview() {
+        try {
+          const data = await apiGet("/api/overview");
+          if (!data.ok) throw new Error("API error");
+
+          state.overview = data;
+
+          const todayTotal = Number(data.todayTotal || 0);
+          const todayByProduct = Array.isArray(data.todayByProduct) ? data.todayByProduct : [];
+          const lastPrintAt = data.lastPrintAt || null;
+
+          el.ovTodayTotal.textContent = String(todayTotal);
+          el.ovLastPrint.textContent = lastPrintAt ? formatLocal(lastPrintAt) : "—";
+
+          const top = todayByProduct[0];
+          el.ovTopProduct.textContent = top ? (top.productName || "—") : "—";
+          el.ovTopProductQty.textContent = top ? String(top.quantity || 0) : "0";
+
+          const todayByStaff = Array.isArray(data.todayByStaff) ? data.todayByStaff : [];
+          const topStaff = todayByStaff[0];
+          el.ovTopStaff.textContent = topStaff ? (topStaff.printedBy || "—") : "—";
+
+          el.ovByProductList.innerHTML = "";
+
+          if (!todayByProduct.length) {
+            const empty = document.createElement("div");
+            empty.className = "overview-row";
+            empty.innerHTML = `<span>Nothing printed today</span><span>x0</span>`;
+            el.ovByProductList.appendChild(empty);
+            return;
+          }
+
+          todayByProduct.forEach((item) => {
+            const row = document.createElement("div");
+            row.className = "overview-row";
+            row.innerHTML = `
+        <span>${item.productName || "Unknown"}</span>
+        <span>x${item.quantity || 0}</span>
+      `;
+            el.ovByProductList.appendChild(row);
+          });
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load overview", "error");
+        }
+      }
+
+      /* ---------------------- Tasks / Checklists ------------- */
+
+      function renderTasks() {
+        el.tasksGrid.innerHTML = "";
+        state.tasks.forEach((group, gi) => {
+          const wrapper = document.createElement("div");
+          wrapper.className = "task-group";
+
+          const title = document.createElement("div");
+          title.className = "task-group-title";
+          title.textContent = group.name || group.id || "Checklist";
+          wrapper.appendChild(title);
+
+          const list = document.createElement("div");
+          list.className = "task-list";
+
+          (group.items || []).forEach((item, ii) => {
+            const row = document.createElement("label");
+            row.className = "task-item";
+
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.checked = !!item.done;
+            cb.addEventListener("change", () => {
+              state.tasks[gi].items[ii].done = cb.checked;
+            });
+
+            const span = document.createElement("span");
+            span.textContent = item.label || item.id;
+
+            row.appendChild(cb);
+            row.appendChild(span);
+            list.appendChild(row);
+          });
+
+          wrapper.appendChild(list);
+          el.tasksGrid.appendChild(wrapper);
+        });
+      }
+
+      async function loadTasks() {
+        try {
+          const data = await apiGet("/api/tasks");
+          if (!data.ok) throw new Error("API error");
+          state.tasks = data.tasks || [];
+          renderTasks();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to load tasks", "error");
+        }
+      }
+
+      async function saveTasks() {
+        try {
+          const body = { tasks: state.tasks };
+          const data = await apiJson("/api/tasks", "PUT", body);
+          if (!data.ok) throw new Error("API error");
+          showToast("Tasks saved");
+          await loadTasks();
+        } catch (err) {
+          console.error(err);
+          showToast("Failed to save tasks", "error");
+        }
+      }
+
+      el.btnSaveTasks.addEventListener("click", saveTasks);
+      el.btnReloadTasks.addEventListener("click", loadTasks);
+
+      /* ---------------------- Staff list ---------------------- */
+      async function loadStaff() {
+        try {
+          const data = await apiGet('/api/staff');
+          if (!data.ok) throw new Error('API error');
+          const raw = Array.isArray(data.staff) ? data.staff : [];
+          // Normalize into objects { id, name, initials, active }
+          const staffObjs = raw.map((s) => {
+            if (!s) return null;
+            if (typeof s === 'string') {
+              const id = String(s).trim();
+              return { id, name: id, initials: id, active: true };
+            }
+            return {
+              id: s.id || String(s.name || s.initials || '').trim(),
+              name: s.name || s.id || s.initials || '',
+              initials: s.initials || '',
+              active: s.active === false ? false : true,
+            };
+          }).filter(Boolean);
+
+          state.staff = staffObjs;
+
+          // populate select
+          const sel = el.printedByInput;
+          if (!sel) return;
+          sel.innerHTML = '<option value="">Select staff</option>';
+          // Only include active staff in the printedBy dropdown
+          staffObjs.filter(s => s.active !== false).forEach(s => {
+            const opt = document.createElement('option');
+            opt.value = s.id || s.name || s.initials;
+            opt.textContent = s.name || s.id || s.initials;
+            sel.appendChild(opt);
+          });
+
+          // auto-fill initials when staff selected — always update/clear
+          sel.addEventListener('change', () => {
+            const val = sel.value || '';
+
+            if (!val) {
+              el.initialsInput.value = '';
+              updatePreviewCard();
+              return;
+            }
+
+            const found = state.staff.find(
+              st => st.id === val || st.name === val || st.initials === val
+            );
+
+            el.initialsInput.value = found
+              ? (found.initials || found.name || found.id || '').toUpperCase().slice(0, 4)
+              : '';
+
+            updatePreviewCard();
+          });
+        } catch (err) {
+          console.error('Failed to load staff', err);
+        }
+      }
+
+      /* ---------------------- Init -------------------------- */
+
+      async function init() {
+        try {
+          await Promise.all([
+            loadProducts(),
+            loadSettings(),
+            loadHistory(),
+            loadOverview(),
+            loadTasks(),
+            loadStaff()
+          ]);
+          ensurePrepInputDefault();
+          updatePreviewCard();
+          showToast("StationOne ready.");
+        } catch {
+          // individual loaders already show errors
+        }
+      }
+
+      init();
+    })();
+  
+    (function initResponsiveNav(){
+      const nav = document.getElementById("sideNav");
+      const toggle = document.getElementById("navToggle");
+      const overlay = document.getElementById("navOverlay");
+      const collapseBtn = document.getElementById("navCollapseBtn");
+      if (!nav || !toggle || !overlay || !collapseBtn) return;
+
+      const KEY = "stationOne_navCollapsed_v2";
+      const isDrawerMode = () => window.matchMedia("(max-width: 820px)").matches;
+
+      function openDrawer(){
+        nav.classList.add("is-open");
+        overlay.classList.add("is-open");
+        document.body.classList.add("nav-open");
+        toggle.setAttribute("aria-expanded", "true");
+      }
+
+      function closeDrawer(){
+        nav.classList.remove("is-open");
+        overlay.classList.remove("is-open");
+        document.body.classList.remove("nav-open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+
+      function setCollapsed(next){
+        document.body.classList.toggle("nav-collapsed", !!next);
+        try { localStorage.setItem(KEY, next ? "1" : "0"); } catch {}
+      }
+
+      try {
+        const saved = localStorage.getItem(KEY);
+        if (saved === "1" && !isDrawerMode()) {
+          document.body.classList.add("nav-collapsed");
+        }
+      } catch {}
+
+      toggle.addEventListener("click", () => {
+        if (!isDrawerMode()) return;
+        if (nav.classList.contains("is-open")) closeDrawer(); else openDrawer();
+      });
+
+      overlay.addEventListener("click", closeDrawer);
+
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeDrawer();
+      });
+
+      nav.addEventListener("click", (e) => {
+        const btn = e.target.closest(".nav-btn");
+        if (btn && isDrawerMode()) closeDrawer();
+      });
+
+      collapseBtn.addEventListener("click", () => {
+        if (isDrawerMode()) return;
+        setCollapsed(!document.body.classList.contains("nav-collapsed"));
+      });
+
+      window.addEventListener("resize", () => {
+        if (!isDrawerMode()) {
+          closeDrawer();
+        } else {
+          document.body.classList.remove("nav-collapsed");
+        }
+      });
+    })();
+</script>
+</body>
+</html>

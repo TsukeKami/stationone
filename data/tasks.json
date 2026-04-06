@@ -1,0 +1,46 @@
+[
+  {
+    "id": "open_checklist",
+    "name": "Open Checklist",
+    "type": "checklist",
+    "items": [
+      {
+        "id": "check_roll",
+        "label": "Check label roll",
+        "done": false
+      },
+      {
+        "id": "test_print",
+        "label": "Run test print",
+        "done": false
+      },
+      {
+        "id": "planner_reset",
+        "label": "Reset planner for the day",
+        "done": false
+      }
+    ]
+  },
+  {
+    "id": "close_checklist",
+    "name": "Close Checklist",
+    "type": "checklist",
+    "items": [
+      {
+        "id": "clear_expired",
+        "label": "Discard expired tubs",
+        "done": false
+      },
+      {
+        "id": "tomorrow_preset",
+        "label": "Load preset for tomorrow",
+        "done": false
+      },
+      {
+        "id": "daily_export",
+        "label": "Export daily label log",
+        "done": false
+      }
+    ]
+  }
+]
